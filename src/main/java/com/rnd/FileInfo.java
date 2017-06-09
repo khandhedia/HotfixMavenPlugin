@@ -56,4 +56,17 @@ public class FileInfo {
     public void setFile(File file) {
         this.file = file;
     }
+
+    @Override
+    public String toString()
+    {
+        final StringBuilder sb = new StringBuilder("FileInfo{");
+        sb.append("componentPath='").append(componentPath).append('\'');
+        sb.append(", modulePath='").append(modulePath).append('\'');
+        sb.append(", basePath='").append(basePath).append('\'');
+        sb.append(", filePath='").append(filePath).append('\'');
+        sb.append(", file=").append(file);
+        sb.append('}');
+        return sb.toString();
+    }
 }

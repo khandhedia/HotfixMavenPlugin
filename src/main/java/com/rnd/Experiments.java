@@ -11,11 +11,11 @@ import java.util.List;
  */
 public class Experiments {
 
-    List<String> pathList;
+    List<String> pathList = new ArrayList<>();
 
-    String one = "HFTool1/src/target/classes/com/rnd/hftool/application/TextInputFileParser.java";
+    String one = "HFTool1/target/classes/com/rnd/hftool/application/TextInputFileParser.java";
     String two = "HFTool1/src/main/resources/log4j.properties";
-    String three = "HFTool1Copy/src/target/classes/com/rnd/hftool/enums/FileTokens.java";
+    String three = "HFTool1Copy/target/classes/com/rnd/hftool/enums/FileTokens.java";
 
     List<FileInfo> fileInfos = new ArrayList<>();
 
@@ -23,7 +23,7 @@ public class Experiments {
 
     List<String> modulePaths = Arrays.asList("HFTool1", "HFTool1Copy");
 
-    List<String> basePaths = Arrays.asList("E:/IJWorkSpace/HFTool/HFTool1/target/classes", "E:/IJWorkSpace/HFTool/HFTool1Copy/src/main/resources", "E:/IJWorkSpace/HFTool/HFTool1Copy/target/classes");
+    List<String> basePaths = Arrays.asList("E:/IJWorkSpace/HFTool/HFTool1/target/classes", "E:/IJWorkSpace/HFTool/HFTool1/src/main/resources", "E:/IJWorkSpace/HFTool/HFTool1Copy/src/main/resources", "E:/IJWorkSpace/HFTool/HFTool1Copy/target/classes");
 
     List<String> basePathsTruncated = new ArrayList<>();
 
@@ -49,7 +49,7 @@ public class Experiments {
                     String moduleName = modulePaths.stream().filter(modulePath -> StringUtils.equalsIgnoreCase(modulePath, firstPathToken)).findFirst().orElse(null);
                     if (null != moduleName) {
                         fileInfo.setModulePath(moduleName);
-                        path = StringUtils.substringAfter(path, "/");
+                        //path = StringUtils.substringAfter(path, "/");
                     }
 
                     String finalPath = path;
@@ -62,6 +62,8 @@ public class Experiments {
                     fileInfo.setFilePath(path);
 
                     fileInfos.add(fileInfo);
+
+                    System.out.println(fileInfo);
 
 
                 }
