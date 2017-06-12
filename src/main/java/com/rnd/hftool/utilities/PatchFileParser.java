@@ -1,4 +1,4 @@
-package com.rnd.tools;
+package com.rnd.hftool.utilities;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -12,7 +12,7 @@ import java.util.Scanner;
  */
 public class PatchFileParser
 {
-    public void parsePatchFile()
+    public LinkedList<String> parsePatchFile()
     {
 
         File file  = new File("D:\\RO-Global\\Tickets\\NFVO-11521-8_1\\NFVO_11521_RO_v1.patch");
@@ -44,5 +44,6 @@ public class PatchFileParser
         }
 
         inputFileRecords.stream().forEach(System.out::println);
+        return inputFileRecords;
     }
 }

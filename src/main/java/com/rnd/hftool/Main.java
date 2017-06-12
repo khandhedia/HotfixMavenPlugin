@@ -1,4 +1,6 @@
-package com.rnd.tools;
+package com.rnd.hftool;
+
+import com.rnd.hftool.utilities.PatchFileParser;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -11,6 +13,9 @@ public class Main
 {
     public static void main(String[] args)
     {
+
+
+
         PatchFileParser patchFileParser = new PatchFileParser();
         patchFileParser.parsePatchFile();
 

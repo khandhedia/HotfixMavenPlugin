@@ -1,4 +1,4 @@
-package com.rnd;
+package com.rnd.hftool.datatypes;
 
 import java.io.File;
 
