@@ -16,8 +16,8 @@ public class Main
 
 
 
-        PatchFileParser patchFileParser = new PatchFileParser();
-        patchFileParser.parsePatchFile();
+/*        PatchFileParser patchFileParser = new PatchFileParser();
+        patchFileParser.parsePatchFile(patchFile);*/
 
         Path path = Paths.get("D:\\Workspaces\\RO-7_2");
 

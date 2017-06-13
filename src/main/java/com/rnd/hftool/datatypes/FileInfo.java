@@ -1,19 +1,23 @@
 package com.rnd.hftool.datatypes;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.io.File;
+
+import static org.apache.commons.lang3.StringUtils.EMPTY;
 
 /**
  * Created by NirMit on 6/8/2017.
  */
 public class FileInfo {
 
-    String componentPath;
+    String componentPath = EMPTY;
 
-    String modulePath;
+    String modulePath = EMPTY;
 
-    String basePath;
+    String basePath = EMPTY;
 
-    String filePath;
+    String filePath = EMPTY;
 
     File file;
 

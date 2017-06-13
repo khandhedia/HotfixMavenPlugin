@@ -2,17 +2,28 @@ package com.rnd.hftool.application;
 
 import com.rnd.hftool.datatypes.FileInfo;
 import com.rnd.hftool.utilities.PatchFileParser;
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
+
+import static java.lang.System.getProperty;
+import static org.apache.commons.lang3.StringUtils.*;
 
 /**
  * Created by NirMit on 6/8/2017.
  */
 public class CreateHF {
+
+    public static final String SOURCE_JAVA_PACKAGE = "src/main/java";
+    public static final String TARGET_CLASSES_PACKAGE = "target/classes";
+    public static final String EXTENSION_JAVA = ".java";
+    public static final String EXTENSION_CLASS = ".class";
+    public static final String COMMA_SEPARATOR = ",";
+    public static final String EXTENSION_PATCH = ".patch";
+    public static final String UNIX_SEPARATOR = "/";
 
     private String componentPath;
 
@@ -26,15 +37,11 @@ public class CreateHF {
 
     private File patchFile;
 
-    List<String> pathList = new ArrayList<>();
-
     List<FileInfo> fileInfos = new ArrayList<>();
 
     List<String> modulePathList;
 
     List<String> basePaths = new ArrayList<>();
-
-    List<String> basePathsTruncated = new ArrayList<>();
 
     List<String> parsedPatchFileRecords;
 
@@ -45,9 +52,9 @@ public class CreateHF {
 
     public void createHF() {
 
-        getPatchFile();
-
         getEnvProperties();
+
+        getPatchFile();
 
         prepareModulePathList();
 
@@ -57,32 +64,28 @@ public class CreateHF {
 
         treatPatchFileRecords();
 
-        pathList.stream().forEach(
-                path ->
+        parsedPatchFileRecords.stream().forEach(
+                recordPath ->
                 {
-                    final String firstPathToken = StringUtils.substringBefore(path, "/");
+                    final String firstPathToken = substringBefore(recordPath, UNIX_SEPARATOR);
                     FileInfo fileInfo = new FileInfo();
                     fileInfo.setComponentPath(componentPath);
-                    String moduleName = modulePathList.stream().filter(modulePath -> StringUtils.equalsIgnoreCase(modulePath, firstPathToken)).findFirst().orElse(null);
+                    fileInfo.setFilePath(componentPath + UNIX_SEPARATOR + recordPath);
+                    String moduleName = modulePathList.stream().filter(modulePath -> equalsIgnoreCase(modulePath, firstPathToken)).findFirst().orElse(null);
                     if (null != moduleName) {
                         fileInfo.setModulePath(moduleName);
-                        //path = StringUtils.substringAfter(path, "/");
+                        recordPath = substringAfter(recordPath, UNIX_SEPARATOR);
                     }
 
-                    String finalPath = path;
-                    String basePath1 = basePathsTruncated.stream().filter(basePath -> StringUtils.startsWithIgnoreCase(finalPath, basePath)).findFirst().orElse(null);
+                    String finalPath = recordPath;
+                    String basePath1 = basePaths.stream().filter(basePath -> startsWithIgnoreCase(finalPath, basePath)).findFirst().orElse(null);
                     if (null != basePath1) {
                         fileInfo.setBasePath(basePath1);
-                        path = StringUtils.substringAfter(path, basePath1);
                     }
-
-                    fileInfo.setFilePath(path);
 
                     fileInfos.add(fileInfo);
 
                     System.out.println(fileInfo);
-
-
                 }
 
         );
@@ -90,38 +93,37 @@ public class CreateHF {
     }
 
     private void treatPatchFileRecords() {
-
-        parsedPatchFileRecords.stream().forEach(
+        List<String> treatedPatchFileRecords = new LinkedList<>();
+        parsedPatchFileRecords.forEach(
                 record ->
-                {
-                    StringUtils.replace(record, "src/main/java", "target/classes");
-                }
+                        treatedPatchFileRecords.add(replace(replace(record, SOURCE_JAVA_PACKAGE, TARGET_CLASSES_PACKAGE), EXTENSION_JAVA, EXTENSION_CLASS).trim())
         );
+        parsedPatchFileRecords = treatedPatchFileRecords;
     }
 
     private void parsePatchFile() {
         PatchFileParser patchFileParser = new PatchFileParser();
-        parsedPatchFileRecords = patchFileParser.parsePatchFile();
+        parsedPatchFileRecords = patchFileParser.parsePatchFile(patchFile);
     }
 
     private void prepareBasePathList() {
         basePaths.add(classesPath);
         basePaths.add(resourcePath);
-        basePaths.addAll(Arrays.asList(otherPaths.split(",")));
+        basePaths.addAll(Arrays.asList(otherPaths.split(COMMA_SEPARATOR)));
     }
 
     private void prepareModulePathList() {
-        modulePathList = Arrays.asList(modulePaths.split(","));
+        modulePathList = Arrays.asList(modulePaths.split(COMMA_SEPARATOR));
     }
 
     private void getPatchFile() {
         File currentPathFile = new File(componentPath);
-        if(!currentPathFile.exists() || currentPathFile.isFile())
+        if (!currentPathFile.exists() || currentPathFile.isFile())
             throw new RuntimeException(componentPath + " refers to a FILE or doesn't exist.");
 
-        File patchFile = Arrays.asList(currentPathFile.listFiles((dir, name) -> StringUtils.endsWithIgnoreCase(name, ".patch"))).stream().sorted((o1, o2) -> (int)(o1.lastModified() - o2.lastModified())).findFirst().orElse(null);
+        File patchFile = Arrays.asList(currentPathFile.listFiles((dir, name) -> endsWithIgnoreCase(name, EXTENSION_PATCH))).stream().sorted((o1, o2) -> (int) (o1.lastModified() - o2.lastModified())).findFirst().orElse(null);
 
-        if(null == patchFile)
+        if (null == patchFile)
             throw new RuntimeException("No patch patchFile found at " + componentPath);
 
         System.out.println("Processing patch patchFile : " + patchFile.getAbsolutePath());
@@ -129,13 +131,12 @@ public class CreateHF {
     }
 
 
-    private void getEnvProperties()
-    {
-        componentPath = System.getProperty("current.path");
-        modulePaths = System.getProperty("module.paths");
-        classesPath = System.getProperty("classes.path");
-        resourcePath = System.getProperty("resources.path");
-        otherPaths = System.getProperty("other.paths");
+    private void getEnvProperties() {
+        componentPath = getProperty("current.path");
+        modulePaths = getProperty("module.paths");
+        classesPath = getProperty("classes.path");
+        resourcePath = getProperty("resources.path");
+        otherPaths = getProperty("other.paths");
 
         System.out.println("After reading system properties");
 

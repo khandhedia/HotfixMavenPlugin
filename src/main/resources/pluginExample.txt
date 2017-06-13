@@ -13,9 +13,9 @@
                 </executions>
                 <configuration>
                     <currentPath>${user.dir}</currentPath>
-                    <classesPath>/target/classes</classesPath>
-                    <resourcesPath>/src/main/resources</resourcesPath>
-                    <otherPaths>/target/maven-status,/target/generated-sources</otherPaths>
-                    <modulePaths>/Module_1,/Module_2</modulePaths>
+                    <classesPath>target/classes</classesPath>
+                    <resourcesPath>src/main/resources</resourcesPath>
+                    <otherPaths>target/maven-status,target/generated-sources</otherPaths>
+                    <modulePaths>Module_1,Module_2</modulePaths>
                 </configuration>
             </plugin>

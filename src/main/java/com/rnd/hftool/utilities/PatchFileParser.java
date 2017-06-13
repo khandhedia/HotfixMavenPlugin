@@ -1,49 +1,41 @@
 package com.rnd.hftool.utilities;
 
-import org.apache.commons.lang3.StringUtils;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Scanner;
 
+import static org.apache.commons.lang3.StringUtils.startsWith;
+import static org.apache.commons.lang3.StringUtils.substringAfter;
+
 /**
  * Created by nirk0816 on 6/2/2017.
  */
-public class PatchFileParser
-{
-    public LinkedList<String> parsePatchFile()
-    {
+public class PatchFileParser {
 
-        File file  = new File("D:\\RO-Global\\Tickets\\NFVO-11521-8_1\\NFVO_11521_RO_v1.patch");
-        if (file.exists()) { System.out.println("File successfully read from " + file); }
+    public static final String PATCH_RECORD_PREFIX = "Index:";
+
+    public LinkedList<String> parsePatchFile(File file) {
+
+        if (!file.exists()) throw new RuntimeException("Unable to access file: " + file);
+
+        System.out.println("File successfully read from " + file);
 
         LinkedList<String> inputFileRecords = new LinkedList<>();
-        try
-        {
+        try {
             Scanner scanner = new Scanner(file);
-            while (scanner.hasNextLine())
-            {
-                String trim = scanner.nextLine().trim();
-                if(StringUtils.startsWith(trim, "Index:"))
-                {
-                    if(StringUtils.endsWithIgnoreCase(trim, ".java") || StringUtils.endsWithIgnoreCase(trim, ".class") )
-                    {
-                        inputFileRecords.add(StringUtils.substringBeforeLast(StringUtils.substringAfter(trim, "Index: "), "."));
-                    }
-                    else
-                    {
-                        inputFileRecords.add(StringUtils.substringAfter(trim, "Index: "));
-                    }
+            while (scanner.hasNextLine()) {
+                String line = scanner.nextLine().trim();
+                if (startsWith(line, PATCH_RECORD_PREFIX)) {
+                    inputFileRecords.add(substringAfter(line, PATCH_RECORD_PREFIX));
                 }
             }
-        }
-        catch (IOException e)
-        {
+        } catch (IOException e) {
             e.printStackTrace();
+            throw new RuntimeException("Exception occurred while parsing file " + file + " MESSAGE:" + e.getMessage());
         }
 
-        inputFileRecords.stream().forEach(System.out::println);
+        inputFileRecords.forEach(System.out::println);
         return inputFileRecords;
     }
 }
