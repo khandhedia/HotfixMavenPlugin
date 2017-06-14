@@ -8,7 +8,13 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+
+import static java.lang.System.currentTimeMillis;
+import static java.lang.System.getProperty;
 import static java.lang.System.setProperty;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.replace;
 
 /**
