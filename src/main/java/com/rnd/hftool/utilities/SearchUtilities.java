@@ -23,11 +23,12 @@ import static org.apache.log4j.Logger.getLogger;
 public class SearchUtilities
 {
     private final boolean debugMode;
-    private final static Logger log = getLogger(CreateHF.class);
+    private final Logger log;
 
 
     public SearchUtilities(boolean debugMode)
     {
+        log = getLogger(CreateHF.class);
         this.debugMode = debugMode;
     }
 

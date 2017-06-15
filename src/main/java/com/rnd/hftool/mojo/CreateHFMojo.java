@@ -1,27 +1,20 @@
 package com.rnd.hftool.mojo;
 
 import com.rnd.hftool.application.CreateHF;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-
-import static java.lang.System.currentTimeMillis;
-import static java.lang.System.getProperty;
 import static java.lang.System.setProperty;
-import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.replace;
 
 /**
  * Created by NirMit on 5/31/2017.
  */
 
-@Mojo(name = "createHF")
+@Mojo(name = "createHF", inheritByDefault = false, aggregator = true)
 public class CreateHFMojo extends AbstractMojo {
 
     public static final String WINDOWS_SEPARATOR = "\\";

@@ -25,12 +25,13 @@ public class JarUtilities
 
     private final boolean debugMode;
 
+    private final Logger log;
+
     public JarUtilities(boolean debugMode)
     {
         this.debugMode = debugMode;
+        log = getLogger(JarUtilities.class);
     }
-
-    private final static Logger log = getLogger(JarUtilities.class);
 
     public File createJar(String jarPath, List<JarRecordDTO> jarRecordDTOS) throws IOException
     {

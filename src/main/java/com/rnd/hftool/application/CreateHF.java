@@ -66,7 +66,7 @@ public class CreateHF {
 
     private String zipRecordPrefixPath = "applications/NetCracker.ear/APP-INF/classes";
 
-    private JarUtilities jarUtilities = new JarUtilities(true);
+    private JarUtilities jarUtilities;
 
     private String suffix;
 
@@ -83,6 +83,8 @@ public class CreateHF {
     }
 
     public void createHF() {
+
+        init();
 
         getPatchFile();
 
@@ -101,6 +103,12 @@ public class CreateHF {
         packJarAndZip();
 
         packSingleZip();
+
+    }
+
+    private void init() {
+
+        jarUtilities = new JarUtilities(true);
 
     }
 
