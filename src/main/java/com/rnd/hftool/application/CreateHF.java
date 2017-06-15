@@ -120,7 +120,7 @@ public class CreateHF {
 
     private void packSingleZip() {
 
-        String zipPath = componentPath+UNIX_SEPARATOR+suffix+ EXTENSION_ZIP;
+        String zipPath = componentPath + UNIX_SEPARATOR + suffix + EXTENSION_ZIP;
 
         try {
             jarUtilities.compressFilesToZip(singleZipRecordDTOs, zipPath);
@@ -138,7 +138,7 @@ public class CreateHF {
         moduleWiseJarRecordDTOSMap.keySet().stream().forEach(
                 moduleName -> {
                     List<JarRecordDTO> jarRecordDTOS = moduleWiseJarRecordDTOSMap.get(moduleName);
-                    String jarPath = moduleName + UNIX_SEPARATOR + replace(moduleName, UNIX_SEPARATOR, UNDERSCORE) + UNDERSCORE + suffix + EXTENSION_JAR;
+                    String jarPath = componentPath + UNIX_SEPARATOR + moduleName + UNIX_SEPARATOR + replace(moduleName, UNIX_SEPARATOR, UNDERSCORE) + UNDERSCORE + suffix + EXTENSION_JAR;
                     try {
                         File jar = jarUtilities.createJar(jarPath, jarRecordDTOS);
                         System.out.println("Jar file created: " + jar.getAbsolutePath());
@@ -151,7 +151,7 @@ public class CreateHF {
                 }
         );
 
-        String aggregateZipPath = componentPath + UNIX_SEPARATOR + "Aggregate_"+suffix+".zip";
+        String aggregateZipPath = componentPath + UNIX_SEPARATOR + "Aggregate_" + suffix + ".zip";
         try {
             jarUtilities.compressFilesToZip(zipRecordDTOS, aggregateZipPath);
             System.out.println("Aggregate Zip created : " + aggregateZipPath);

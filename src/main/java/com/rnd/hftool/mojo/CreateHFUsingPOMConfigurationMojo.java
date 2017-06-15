@@ -7,6 +7,9 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 import static java.lang.System.setProperty;
 import static org.apache.commons.lang3.StringUtils.replace;
 
@@ -14,8 +17,8 @@ import static org.apache.commons.lang3.StringUtils.replace;
  * Created by NirMit on 5/31/2017.
  */
 
-@Mojo(name = "createHF", inheritByDefault = false, aggregator = true)
-public class CreateHFMojo extends AbstractMojo {
+@Mojo(name = "createHFUsingPOMConfiguration", inheritByDefault = false, aggregator = true)
+public class CreateHFUsingPOMConfigurationMojo extends AbstractMojo {
 
     public static final String WINDOWS_SEPARATOR = "\\";
     public static final String UNIX_SEPARATOR = "/";
@@ -67,6 +70,10 @@ public class CreateHFMojo extends AbstractMojo {
     }
 
     private void printParameters() {
+
+        Path path = Paths.get("");
+        System.out.println(path.toAbsolutePath());
+
         System.out.println(currentPath);
         System.out.println(classesPath);
         System.out.println(resourcesPath);
