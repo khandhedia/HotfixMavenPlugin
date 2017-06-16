@@ -3,7 +3,7 @@ package com.rnd.hftool.datatypes;
 import java.io.File;
 
 /**
- * Created by NirMit on 6/7/2017.
+ * Created by Nirav Khandhedia on 6/7/2017.
  */
 public class ZipRecordDTO
 {

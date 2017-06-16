@@ -3,7 +3,7 @@ package com.rnd.hftool.datatypes;
 import java.io.File;
 
 /**
- * Created by nirk0816 on 5/29/2017.
+ * Created by Nirav Khandhedia on 5/29/2017.
  */
 public class JarRecordDTO
 {

@@ -5,35 +5,41 @@ import com.rnd.hftool.enums.ArtifactType;
 import com.rnd.hftool.properties.HotFixProperties;
 import com.rnd.hftool.utilities.SearchUtilities;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
-import org.apache.maven.plugins.annotations.Parameter;
 
-import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
 
+import static com.rnd.hftool.constants.HotFixConstants.COMMA;
+import static com.rnd.hftool.constants.HotFixConstants.DEBUG_MODE_TRUE;
+import static com.rnd.hftool.constants.HotFixConstants.EXTENSION_LOG;
+import static com.rnd.hftool.constants.HotFixConstants.LOG_FILE_PREFIX;
+import static com.rnd.hftool.constants.HotFixConstants.POM_XML;
+import static com.rnd.hftool.constants.HotFixConstants.UNIX_SEPARATOR;
+import static com.rnd.hftool.utilities.HotfixUtilities.setUnixPathSeparator;
 import static java.lang.System.currentTimeMillis;
 import static java.lang.System.getProperty;
 import static java.lang.System.setProperty;
-import static org.apache.commons.lang3.StringUtils.*;
+import static org.apache.commons.lang3.StringUtils.EMPTY;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.substringBeforeLast;
 
 /**
- * Created by NirMit on 5/31/2017.
+ * Created by Nirav Khandhedia on 5/31/2017.
  */
 
-@Mojo(name = "createHFUsingPath", inheritByDefault = false, aggregator = true)
-public class CreateHFUsingPathMojo extends AbstractMojo {
+@Mojo(name = "createHFUsingPath", aggregator = true, defaultPhase = LifecyclePhase.INSTALL)
+public class CreateHFUsingPathMojo extends AbstractMojo
+{
 
-    public static final String WINDOWS_SEPARATOR = "\\";
-    public static final String UNIX_SEPARATOR = "/";
-    private String currentPath;
+    private Path currentPath;
 
     private String classesPath;
 
@@ -45,108 +51,104 @@ public class CreateHFUsingPathMojo extends AbstractMojo {
 
     private SimpleDateFormat simpleDateFormat;
 
-    public void execute() throws MojoExecutionException, MojoFailureException {
+    HotFixProperties hotFixProperties;
+
+    public void execute() throws MojoExecutionException, MojoFailureException
+    {
 
         configureDateFormat();
 
+        identifyCurrentPath();
+
+        configureLogging();
+
+        loadHotFixProperties();
+
         setParameters();
-
-        printParameters();
-
-        replacePathSeparators();
 
         setSystemProperties();
 
         createHF();
     }
 
-    public static void main(String[] args) {
-        CreateHFUsingPathMojo createHFUsingPathMojo = new CreateHFUsingPathMojo();
-        try {
-            createHFUsingPathMojo.execute();
-        } catch (MojoExecutionException e) {
-            e.printStackTrace();
-        } catch (MojoFailureException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void setParameters() {
-
-        Path path = Paths.get("E:\\IJWorkSpace\\HFTool\\HFTool1");
-        currentPath = path.toAbsolutePath().toString();
-        File file = path.toAbsolutePath().toFile();
-        if(!file.exists())
-            throw new RuntimeException("Path " + currentPath + " doesn't exist.");
-
-        configureLogging(currentPath);
-
-        HotFixProperties hotFixProperties = new HotFixProperties(currentPath);
-
-        classesPath = hotFixProperties.getClassesPath();
-        resourcesPath = hotFixProperties.getResourcesPath();
-        otherPaths = hotFixProperties.getOtherPaths();
-        modulePaths = analyzeModulePaths(path);
-
-    }
-
-    private void configureLogging(String componentPath) {
-        if (isEmpty(getProperty("log.level"))) System.setProperty("log.level", "INFO");
-        System.setProperty("logfile.name", componentPath + "/hfplugin" + simpleDateFormat.format(currentTimeMillis()) + ".log");
-    }
-
-    private void configureDateFormat() {
+    private void configureDateFormat()
+    {
         simpleDateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
         simpleDateFormat.setTimeZone(Calendar.getInstance().getTimeZone());
     }
 
-    private String analyzeModulePaths(Path searchPath) {
+    private void identifyCurrentPath()
+    {
+        Path path = Paths.get(EMPTY);
+        currentPath = path.toAbsolutePath();
+        if (!currentPath.toFile().exists()) { throw new RuntimeException("Path " + currentPath + " doesn't exist."); }
+    }
 
-        SearchUtilities searchUtilities = new SearchUtilities(true);
-        List<Path> pathList = searchUtilities.search(searchPath, "pom.xml", ArtifactType.REGULAR_FILE, 999);
-        if(CollectionUtils.isEmpty(pathList))
-            return EMPTY;
+    private void configureLogging()
+    {
+        if (isEmpty(getProperty("log.level"))) { System.setProperty("log.level", "INFO"); }
+        System.setProperty("logfile.name", currentPath + UNIX_SEPARATOR + LOG_FILE_PREFIX + simpleDateFormat.format(currentTimeMillis()) + EXTENSION_LOG);
+    }
+
+    private void loadHotFixProperties()
+    {
+        hotFixProperties = HotFixProperties.getInstance();
+    }
+
+    private void setParameters()
+    {
+        classesPath = hotFixProperties.getClassesPath();
+        resourcesPath = hotFixProperties.getResourcesPath();
+        otherPaths = hotFixProperties.getOtherPaths();
+        modulePaths = analyzeModulePaths();
+    }
+
+    private String analyzeModulePaths()
+    {
+        SearchUtilities searchUtilities = new SearchUtilities(DEBUG_MODE_TRUE);
+        List<Path> pomLocations = searchUtilities.search(currentPath, POM_XML, ArtifactType.REGULAR_FILE, 999);
+        if (CollectionUtils.isEmpty(pomLocations)) { return EMPTY; }
         StringBuilder sb = new StringBuilder();
-        pathList.forEach(
-                path -> {
-                    String relativePath = replace(searchPath.relativize(path).toString(), WINDOWS_SEPARATOR, UNIX_SEPARATOR);
-                    if(!relativePath.startsWith("pom.xml"))
-                    sb.append(substringBeforeLast(relativePath, "/pom.xml")).append(",");
-                }
-        );
-        return substringBeforeLast(sb.toString(), ",");
+        pomLocations.forEach(path ->
+                             {
+                                 String relativePath = setUnixPathSeparator(currentPath.relativize(path).toString());
+                                 if (!relativePath.startsWith(POM_XML))
+                                 {
+                                     sb.append(substringBeforeLast(relativePath, UNIX_SEPARATOR + POM_XML)).append(COMMA);
+                                 }
+                             });
+        return substringBeforeLast(sb.toString(), COMMA);
     }
 
-    private void createHF() {
-        CreateHF createHF = new CreateHF();
-        createHF.createHF();
+    private void setSystemProperties()
+    {
+        setProperty("current.path", setUnixPathSeparator(currentPath.toString()));
+        setProperty("classes.path", setUnixPathSeparator(classesPath));
+        setProperty("resources.path", setUnixPathSeparator(resourcesPath));
+        setProperty("other.paths", setUnixPathSeparator(otherPaths));
+        setProperty("module.paths", setUnixPathSeparator(modulePaths));
     }
 
-    private void setSystemProperties() {
-        setProperty("current.path", currentPath);
-        setProperty("classes.path", classesPath);
-        setProperty("resources.path", resourcesPath);
-        setProperty("other.paths", otherPaths);
-        setProperty("module.paths", modulePaths);
+    private void createHF()
+    {
+        new CreateHF().createHF();
     }
 
-    private void replacePathSeparators() {
-        currentPath = replace(currentPath, WINDOWS_SEPARATOR, UNIX_SEPARATOR);
-        classesPath = replace(classesPath, WINDOWS_SEPARATOR, UNIX_SEPARATOR);
-        resourcesPath = replace(resourcesPath, WINDOWS_SEPARATOR, UNIX_SEPARATOR);
-        otherPaths = replace(otherPaths, WINDOWS_SEPARATOR, UNIX_SEPARATOR);
-        modulePaths = replace(modulePaths, WINDOWS_SEPARATOR, UNIX_SEPARATOR);
+    public static void main(String[] args)
+    {
+        CreateHFUsingPathMojo createHFUsingPathMojo = new CreateHFUsingPathMojo();
+        try
+        {
+            createHFUsingPathMojo.execute();
+        }
+        catch (MojoExecutionException e)
+        {
+            e.printStackTrace();
+        }
+        catch (MojoFailureException e)
+        {
+            e.printStackTrace();
+        }
     }
 
-    private void printParameters() {
-
-        Path path = Paths.get("");
-        System.out.println(path.toAbsolutePath());
-
-        System.out.println(currentPath);
-        System.out.println(classesPath);
-        System.out.println(resourcesPath);
-        System.out.println(otherPaths);
-        System.out.println(modulePaths);
-    }
 }

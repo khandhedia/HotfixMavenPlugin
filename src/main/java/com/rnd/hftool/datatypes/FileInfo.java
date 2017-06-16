@@ -7,7 +7,7 @@ import java.io.File;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 
 /**
- * Created by NirMit on 6/8/2017.
+ * Created by Nirav Khandhedia on 6/8/2017.
  */
 public class FileInfo {
 
