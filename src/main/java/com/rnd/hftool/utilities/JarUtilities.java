@@ -1,7 +1,7 @@
 package com.rnd.hftool.utilities;
 
-import com.rnd.hftool.datatypes.JarRecordDTO;
-import com.rnd.hftool.datatypes.ZipRecordDTO;
+import com.rnd.hftool.datatypes.JarRecordInfo;
+import com.rnd.hftool.datatypes.ZipRecordInfo;
 import org.apache.log4j.Logger;
 
 import java.io.*;
@@ -22,7 +22,6 @@ import static org.apache.log4j.Logger.getLogger;
  */
 public class JarUtilities
 {
-
     private final boolean debugMode;
 
     private final Logger log;
@@ -33,7 +32,7 @@ public class JarUtilities
         log = getLogger(JarUtilities.class);
     }
 
-    public File createJar(String jarPath, List<JarRecordDTO> jarRecordDTOS) throws IOException
+    public File createJar(String jarPath, List<JarRecordInfo> jarRecordInfos) throws IOException
     {
         Manifest manifest = new Manifest();
         manifest.getMainAttributes().put(MANIFEST_VERSION, "1.0");
@@ -42,33 +41,33 @@ public class JarUtilities
         FileOutputStream fileOutputStream = new FileOutputStream(jarFile);
         try (JarOutputStream jar = new JarOutputStream(fileOutputStream, manifest))
         {
-            addMultipleFilesToJar(jarRecordDTOS, jar);
+            addMultipleFilesToJar(jarRecordInfos, jar);
         }
 
         return jarFile;
     }
 
-    private void addMultipleFilesToJar(List<JarRecordDTO> jarRecordDTOS, JarOutputStream jar)
+    private void addMultipleFilesToJar(List<JarRecordInfo> jarRecordInfos, JarOutputStream jar)
     {
-        jarRecordDTOS.forEach(jarRecordDTO ->
+        jarRecordInfos.forEach(jarRecordInfo ->
                               {
                                   try
                                   {
-                                      addSingleFileToJar(jar, jarRecordDTO);
+                                      addSingleFileToJar(jar, jarRecordInfo);
                                   }
                                   catch (IOException e)
                                   {
                                       if (debugMode) { e.printStackTrace(); }
-                                      log.error("Error adding " + jarRecordDTO + " in jar: " + e.getMessage());
+                                      log.error("Error adding " + jarRecordInfo + " in jar: " + e.getMessage());
                                   }
                               });
     }
 
-    private void addSingleFileToJar(JarOutputStream jar, JarRecordDTO jarRecordDTO) throws IOException
+    private void addSingleFileToJar(JarOutputStream jar, JarRecordInfo jarRecordInfo) throws IOException
     {
 
-        File sourceFile = jarRecordDTO.getSourceFile();
-        String filePathWithinJar = jarRecordDTO.getFilePathWithinJar().replace("\\","/");
+        File sourceFile = jarRecordInfo.getSourceFile();
+        String filePathWithinJar = jarRecordInfo.getFilePathWithinJar().replace("\\","/");
         filePathWithinJar = replaceChars( filePathWithinJar, "\\", "/");
 
         BufferedInputStream in = null;
@@ -97,20 +96,18 @@ public class JarUtilities
         }
     }
 
-    public void compressFilesToZip(Set<ZipRecordDTO> zipRecordDTOS, String zipFilePath) throws IOException
+    public void compressFilesToZip(Set<ZipRecordInfo> zipRecordInfos, String zipFilePath) throws IOException
     {
         byte[] buffer = new byte[1024];
         FileOutputStream fos = new FileOutputStream(zipFilePath);
         ZipOutputStream zos = new ZipOutputStream(fos);
 
-        zipRecordDTOS.forEach(zipRecordDTO -> {
-
-            System.out.println(zipRecordDTO);
+        zipRecordInfos.forEach(zipRecordInfo -> {
 
             try
             {
-                File srcFile = zipRecordDTO.getSourceFile();
-                String name = zipRecordDTO.getFilePathWithinZip();
+                File srcFile = zipRecordInfo.getSourceFile();
+                String name = zipRecordInfo.getFilePathWithinZip();
 
                 FileInputStream fis = new FileInputStream(srcFile);
 

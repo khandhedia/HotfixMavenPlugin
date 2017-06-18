@@ -25,7 +25,6 @@ public class SearchUtilities
     private final boolean debugMode;
     private final Logger log;
 
-
     public SearchUtilities(boolean debugMode)
     {
         log = getLogger(CreateHF.class);

@@ -5,7 +5,7 @@ import java.io.File;
 /**
  * Created by Nirav Khandhedia on 5/29/2017.
  */
-public class JarRecordDTO
+public class JarRecordInfo
 {
     private File sourceFile;
 
@@ -34,7 +34,7 @@ public class JarRecordDTO
     @Override
     public String toString()
     {
-        final StringBuilder sb = new StringBuilder("JarRecordDTO{");
+        final StringBuilder sb = new StringBuilder("JarRecordInfo{");
         sb.append("sourceFile=").append(sourceFile);
         sb.append(", filePathWithinJar='").append(filePathWithinJar).append('\'');
         sb.append('}');

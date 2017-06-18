@@ -1,9 +1,5 @@
 package com.rnd.hftool.datatypes;
 
-import org.apache.commons.lang3.StringUtils;
-
-import java.io.File;
-
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 
 /**
@@ -11,15 +7,13 @@ import static org.apache.commons.lang3.StringUtils.EMPTY;
  */
 public class FileInfo {
 
-    String componentPath = EMPTY;
+    private String componentPath = EMPTY;
 
-    String modulePath = EMPTY;
+    private String modulePath = EMPTY;
 
-    String basePath = EMPTY;
+    private String basePath = EMPTY;
 
-    String filePath = EMPTY;
-
-    File file;
+    private String filePath = EMPTY;
 
     public String getComponentPath() {
         return componentPath;
@@ -53,14 +47,6 @@ public class FileInfo {
         this.filePath = filePath;
     }
 
-    public File getFile() {
-        return file;
-    }
-
-    public void setFile(File file) {
-        this.file = file;
-    }
-
     @Override
     public String toString()
     {
@@ -69,7 +55,6 @@ public class FileInfo {
         sb.append(", modulePath='").append(modulePath).append('\'');
         sb.append(", basePath='").append(basePath).append('\'');
         sb.append(", filePath='").append(filePath).append('\'');
-        sb.append(", file=").append(file);
         sb.append('}');
         return sb.toString();
     }

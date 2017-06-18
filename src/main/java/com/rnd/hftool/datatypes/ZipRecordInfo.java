@@ -5,13 +5,13 @@ import java.io.File;
 /**
  * Created by Nirav Khandhedia on 6/7/2017.
  */
-public class ZipRecordDTO
+public class ZipRecordInfo
 {
-    private File sourceFile;
+    private final File sourceFile;
 
-    private String filePathWithinZip;
+    private final String filePathWithinZip;
 
-    public ZipRecordDTO(File sourceFile, String filePathWithinZip) {
+    public ZipRecordInfo(File sourceFile, String filePathWithinZip) {
         this.sourceFile = sourceFile;
         this.filePathWithinZip = filePathWithinZip;
     }
@@ -20,21 +20,13 @@ public class ZipRecordDTO
         return sourceFile;
     }
 
-    public void setSourceFile(File sourceFile) {
-        this.sourceFile = sourceFile;
-    }
-
     public String getFilePathWithinZip() {
         return filePathWithinZip;
     }
 
-    public void setFilePathWithinZip(String filePathWithinZip) {
-        this.filePathWithinZip = filePathWithinZip;
-    }
-
     @Override
     public String toString() {
-        return "ZipRecordDTO{" +
+        return "ZipRecordInfo{" +
                 "sourceFile=" + sourceFile +
                 ", filePathWithinZip='" + filePathWithinZip + '\'' +
                 '}';
@@ -45,7 +37,7 @@ public class ZipRecordDTO
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        ZipRecordDTO that = (ZipRecordDTO) o;
+        ZipRecordInfo that = (ZipRecordInfo) o;
 
         return filePathWithinZip != null ? filePathWithinZip.equals(that.filePathWithinZip) : that.filePathWithinZip == null;
     }

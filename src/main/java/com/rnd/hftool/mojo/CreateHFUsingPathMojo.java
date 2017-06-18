@@ -17,12 +17,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
 
-import static com.rnd.hftool.constants.HotFixConstants.COMMA;
-import static com.rnd.hftool.constants.HotFixConstants.DEBUG_MODE_TRUE;
-import static com.rnd.hftool.constants.HotFixConstants.EXTENSION_LOG;
-import static com.rnd.hftool.constants.HotFixConstants.LOG_FILE_PREFIX;
-import static com.rnd.hftool.constants.HotFixConstants.POM_XML;
-import static com.rnd.hftool.constants.HotFixConstants.UNIX_SEPARATOR;
+import static com.rnd.hftool.constants.HotFixConstants.*;
 import static com.rnd.hftool.utilities.HotfixUtilities.setUnixPathSeparator;
 import static java.lang.System.currentTimeMillis;
 import static java.lang.System.getProperty;
@@ -51,14 +46,14 @@ public class CreateHFUsingPathMojo extends AbstractMojo
 
     private SimpleDateFormat simpleDateFormat;
 
-    HotFixProperties hotFixProperties;
+    private HotFixProperties hotFixProperties;
 
     public void execute() throws MojoExecutionException, MojoFailureException
     {
 
         configureDateFormat();
 
-        identifyCurrentPath();
+        identifyCurrentPathAndSetAsSytemProperty();
 
         configureLogging();
 
@@ -77,17 +72,21 @@ public class CreateHFUsingPathMojo extends AbstractMojo
         simpleDateFormat.setTimeZone(Calendar.getInstance().getTimeZone());
     }
 
-    private void identifyCurrentPath()
+    private void identifyCurrentPathAndSetAsSytemProperty()
     {
         Path path = Paths.get(EMPTY);
         currentPath = path.toAbsolutePath();
         if (!currentPath.toFile().exists()) { throw new RuntimeException("Path " + currentPath + " doesn't exist."); }
+        setProperty(PROPERTY_CURRENT_PATH, setUnixPathSeparator(currentPath.toString()));
     }
 
     private void configureLogging()
     {
-        if (isEmpty(getProperty("log.level"))) { System.setProperty("log.level", "INFO"); }
-        System.setProperty("logfile.name", currentPath + UNIX_SEPARATOR + LOG_FILE_PREFIX + simpleDateFormat.format(currentTimeMillis()) + EXTENSION_LOG);
+        if (isEmpty(getProperty(LOG_LEVEL))) { setProperty(LOG_LEVEL, INFO); }
+        if (isEmpty(getProperty(LOGFILE_NAME)))
+        {
+            setProperty(LOGFILE_NAME, currentPath + UNIX_SEPARATOR + LOG_FILE_PREFIX + simpleDateFormat.format(currentTimeMillis()) + EXTENSION_LOG);
+        }
     }
 
     private void loadHotFixProperties()
@@ -105,7 +104,7 @@ public class CreateHFUsingPathMojo extends AbstractMojo
 
     private String analyzeModulePaths()
     {
-        SearchUtilities searchUtilities = new SearchUtilities(DEBUG_MODE_TRUE);
+        SearchUtilities searchUtilities = new SearchUtilities(hotFixProperties.isDebugMode());
         List<Path> pomLocations = searchUtilities.search(currentPath, POM_XML, ArtifactType.REGULAR_FILE, 999);
         if (CollectionUtils.isEmpty(pomLocations)) { return EMPTY; }
         StringBuilder sb = new StringBuilder();
@@ -122,11 +121,10 @@ public class CreateHFUsingPathMojo extends AbstractMojo
 
     private void setSystemProperties()
     {
-        setProperty("current.path", setUnixPathSeparator(currentPath.toString()));
-        setProperty("classes.path", setUnixPathSeparator(classesPath));
-        setProperty("resources.path", setUnixPathSeparator(resourcesPath));
-        setProperty("other.paths", setUnixPathSeparator(otherPaths));
-        setProperty("module.paths", setUnixPathSeparator(modulePaths));
+        setProperty(PROPERTY_CLASSES_PATH, setUnixPathSeparator(classesPath));
+        setProperty(PROPERTY_RESOURCES_PATH, setUnixPathSeparator(resourcesPath));
+        setProperty(PROPERTY_OTHER_PATHS, setUnixPathSeparator(otherPaths));
+        setProperty(PROPERTY_MODULE_PATHS, setUnixPathSeparator(modulePaths));
     }
 
     private void createHF()
@@ -141,11 +139,7 @@ public class CreateHFUsingPathMojo extends AbstractMojo
         {
             createHFUsingPathMojo.execute();
         }
-        catch (MojoExecutionException e)
-        {
-            e.printStackTrace();
-        }
-        catch (MojoFailureException e)
+        catch (MojoExecutionException | MojoFailureException e)
         {
             e.printStackTrace();
         }
