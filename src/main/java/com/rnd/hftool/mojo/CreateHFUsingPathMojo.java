@@ -17,7 +17,20 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
 
-import static com.rnd.hftool.constants.HotFixConstants.*;
+import static com.rnd.hftool.constants.HotFixConstants.COMMA;
+import static com.rnd.hftool.constants.HotFixConstants.DEBUG;
+import static com.rnd.hftool.constants.HotFixConstants.EXTENSION_LOG;
+import static com.rnd.hftool.constants.HotFixConstants.INFO;
+import static com.rnd.hftool.constants.HotFixConstants.LOGFILE_NAME;
+import static com.rnd.hftool.constants.HotFixConstants.LOG_FILE_PREFIX;
+import static com.rnd.hftool.constants.HotFixConstants.LOG_LEVEL;
+import static com.rnd.hftool.constants.HotFixConstants.POM_XML;
+import static com.rnd.hftool.constants.HotFixConstants.PROPERTY_CLASSES_PATH;
+import static com.rnd.hftool.constants.HotFixConstants.PROPERTY_CURRENT_PATH;
+import static com.rnd.hftool.constants.HotFixConstants.PROPERTY_MODULE_PATHS;
+import static com.rnd.hftool.constants.HotFixConstants.PROPERTY_OTHER_PATHS;
+import static com.rnd.hftool.constants.HotFixConstants.PROPERTY_RESOURCES_PATH;
+import static com.rnd.hftool.constants.HotFixConstants.UNIX_SEPARATOR;
 import static com.rnd.hftool.utilities.HotfixUtilities.setUnixPathSeparator;
 import static java.lang.System.currentTimeMillis;
 import static java.lang.System.getProperty;
@@ -55,9 +68,9 @@ public class CreateHFUsingPathMojo extends AbstractMojo
 
         identifyCurrentPathAndSetAsSytemProperty();
 
-        configureLogging();
-
         loadHotFixProperties();
+
+        configureLogging();
 
         setParameters();
 
@@ -82,7 +95,11 @@ public class CreateHFUsingPathMojo extends AbstractMojo
 
     private void configureLogging()
     {
-        if (isEmpty(getProperty(LOG_LEVEL))) { setProperty(LOG_LEVEL, INFO); }
+        if (isEmpty(getProperty(LOG_LEVEL)))
+        {
+            if (hotFixProperties.isDebugMode()) { setProperty(LOG_LEVEL, DEBUG); }
+            else { setProperty(LOG_LEVEL, INFO); }
+        }
         if (isEmpty(getProperty(LOGFILE_NAME)))
         {
             setProperty(LOGFILE_NAME, currentPath + UNIX_SEPARATOR + LOG_FILE_PREFIX + simpleDateFormat.format(currentTimeMillis()) + EXTENSION_LOG);

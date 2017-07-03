@@ -22,6 +22,7 @@ public class HotFixConstants
     public static final String LOG_LEVEL = "log.level";
     public static final String LOGFILE_NAME = "logfile.name";
     public static final String INFO = "INFO";
+    public static final String DEBUG = "DEBUG";
     public static final String HOTFIX_DIRECTORY_NAME = "/hotfix";
     public static final String PROPERTY_CURRENT_PATH = "current.path";
     public static final String PROPERTY_CLASSES_PATH = "classes.path";

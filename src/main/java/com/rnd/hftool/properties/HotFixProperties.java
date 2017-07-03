@@ -1,7 +1,6 @@
 package com.rnd.hftool.properties;
 
 import org.apache.commons.lang3.BooleanUtils;
-import org.apache.log4j.Logger;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -10,12 +9,19 @@ import java.io.InputStream;
 import java.util.Optional;
 import java.util.Properties;
 
-import static com.rnd.hftool.constants.HotFixConstants.*;
+import static com.rnd.hftool.constants.HotFixConstants.PROPERTIES_FILE_NAME;
+import static com.rnd.hftool.constants.HotFixConstants.PROPERTY_CLASSES_PATH;
+import static com.rnd.hftool.constants.HotFixConstants.PROPERTY_CURRENT_PATH;
+import static com.rnd.hftool.constants.HotFixConstants.PROPERTY_DEBUG_MODE;
+import static com.rnd.hftool.constants.HotFixConstants.PROPERTY_OTHER_PATHS;
+import static com.rnd.hftool.constants.HotFixConstants.PROPERTY_PATCH_RECORD_PREFIX;
+import static com.rnd.hftool.constants.HotFixConstants.PROPERTY_RESOURCES_PATH;
+import static com.rnd.hftool.constants.HotFixConstants.PROPERTY_SINGLE_ZIP_PREFIX_PATH;
+import static com.rnd.hftool.constants.HotFixConstants.UNIX_SEPARATOR;
 import static com.rnd.hftool.utilities.HotfixUtilities.setUnixPathSeparator;
 import static java.lang.System.getProperty;
 import static java.lang.Thread.currentThread;
 import static java.nio.file.Paths.get;
-import static org.apache.log4j.Logger.getLogger;
 
 /**
  * Created by Nirav Khandhedia on 6/15/2017.
@@ -32,13 +38,10 @@ public class HotFixProperties {
         return hotFixPropertiesObject;
     }
 
-    private final Logger log;
-
     private final Properties defaultHotFixProperties = new Properties();
     private final Properties customHotFixProperties = new Properties();
 
     private HotFixProperties() {
-        log = getLogger(HotFixProperties.class);
         loadProperties(getProperty(PROPERTY_CURRENT_PATH));
     }
 
@@ -70,23 +73,21 @@ public class HotFixProperties {
         String customPropertiesFilePath = propertiesPath + UNIX_SEPARATOR + PROPERTIES_FILE_NAME;
         File file = get(customPropertiesFilePath).toFile();
         if (file.exists()) {
-            log.info("Processing Custom Properties.");
+            System.out.println("Processing Custom Properties.");
             try {
                 InputStream is = new FileInputStream(setUnixPathSeparator(file.getAbsolutePath()));
                 customHotFixProperties.load(is);
-                log.info("Custom Properties loaded from file : " + file);
+                System.out.println("Custom Properties loaded from file : " + file);
             } catch (IOException e) {
-                log.error("Custom Properties loading failed, from file: " + file + ". Exception: " + e);
+                System.out.println("ERROR: Custom Properties loading failed, from file: " + file + ". Exception: " + e);
             }
         }
-
-        log.info("Processing Default Properties.");
 
         try {
             defaultHotFixProperties.load(currentThread().getContextClassLoader().getResourceAsStream(PROPERTIES_FILE_NAME));
         } catch (IOException e) {
             String message = "Default Properties loading failed. ";
-            log.error(message + e.getMessage());
+            System.out.println("ERROR: " + message + e.getMessage());
             throw new RuntimeException(message + e);
         }
     }
@@ -95,7 +96,7 @@ public class HotFixProperties {
         String value = Optional.ofNullable(customHotFixProperties.getProperty(property)).orElse(defaultHotFixProperties.getProperty(property));
         if (null == value) {
             String message = "Property " + property + " could not be read from default or custom properties.";
-            log.error(message);
+            System.out.println("ERROR: " + message);
             throw new RuntimeException(message);
         }
         return value;
